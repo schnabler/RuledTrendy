@@ -2,7 +2,7 @@
 //  RuledTrendy.swift
 //  RuledTrendy
 //
-//  Created by BCKWTN on 14.04.16.
+//  Created by BCKTWN on 14.04.16.
 
 import UIKit
 
