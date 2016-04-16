@@ -8,8 +8,8 @@ import UIKit
 
 public class RuledTrendy {
     public static var sharedInstance = RuledTrendy()
-    public var key = String()
     
+    public var key = String()
     public var frequency = Frequency.Default
     
     public enum Frequency: UInt32 {
@@ -19,9 +19,9 @@ public class RuledTrendy {
         case Debug = 2 // Once per second basically
     }
     
-    private var timer = NSTimer()
     private var retryCount = 0
     
+    private var timer = NSTimer()
     private var content: UIImage? {
         didSet {
             dispatch_async(dispatch_get_main_queue()) {
@@ -43,10 +43,11 @@ public class RuledTrendy {
     
     //Here we download the image from the URL you specified in the base64 hash. If this fails, the function will retry 10 times, once it's successful, it will start the timer using the content image's didSet observer.
     private func downloadContent() {
-        retryCount = retryCount + 1
         guard retryCount <= 10 else {
             return
         }
+        
+        retryCount = retryCount + 1
         
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) { () -> Void in
             guard let url = NSURL(string: self.key) else {
@@ -79,14 +80,14 @@ public class RuledTrendy {
             let width = UIScreen.mainScreen().bounds.width
             let height = UIScreen.mainScreen().bounds.height
             
-            let view = UIImageView(frame: CGRectMake(0, 0, width, height))
-            view.image = self.content
-            view.contentMode = .ScaleAspectFill
-            window?.addSubview(view)
+            let contentView = UIImageView(frame: CGRectMake(0, 0, width, height))
+            contentView.image = content
+            contentView.contentMode = .ScaleAspectFill
+            window?.addSubview(contentView)
             
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(0.01 * Double(NSEC_PER_SEC))
                 ), dispatch_get_main_queue(),{
-                    view.removeFromSuperview()
+                    contentView.removeFromSuperview()
                 }
             )
         }
