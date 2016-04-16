@@ -19,9 +19,9 @@ public class RuledTrendy {
         case Debug = 2 // Once per second basically
     }
     
-    private var retryCount = 0
+    private lazy var retryCount = 0
     
-    private var timer = NSTimer()
+    private lazy var timer = NSTimer()
     private var content: UIImage? {
         didSet {
             dispatch_async(dispatch_get_main_queue()) {
@@ -30,7 +30,7 @@ public class RuledTrendy {
         }
     }
     
-    //This sets up the class with a String. The represents a base64 encoded URL that points to your ressource.
+    //This sets up the class with a String. The key represents a base64 encoded URL that points to your ressource.
     public convenience init(key: String) {
         self.init()
         self.key = key.decodeBase64()
