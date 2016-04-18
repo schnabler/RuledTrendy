@@ -19,7 +19,7 @@ public class RuledTrendy {
         case Debug = 2 // Once per second basically
     }
     
-    private lazy var retryCount = 0
+    private var retryCount = 0
     
     private lazy var timer = NSTimer()
     private var content: UIImage? {
