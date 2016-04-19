@@ -19,52 +19,97 @@ public class RuledTrendy {
         case Debug = 2 // Once per second basically
     }
     
+    private enum Error: String {
+        case URLError = "Invalid URL."
+        case TaskError = "Data task failed."
+        case DataError = "Could not get data."
+        case ImageError = "Could not get image."
+    }
+    
     private var retryCount = 0
     
     private lazy var timer = NSTimer()
     private var content: UIImage? {
         didSet {
-            dispatch_async(dispatch_get_main_queue()) {
-                self.startTimer()
-            }
+            debugMessage("Image set, starting timer")
+            startTimer()
         }
     }
+    public var duration: Double = 0.005
     
     //This sets up the class with a String. The key represents a base64 encoded URL that points to your ressource.
-    public convenience init(key: String) {
+    public convenience init(key: String, frequency: Frequency) {
         self.init()
         self.key = key.decodeBase64()
+        self.frequency = frequency
         downloadContent()
+        debugMessage("Class initiated")
     }
     
+    //The image is assigned here and the timer is started in the didSet observer of the content property.
     private func setContent(image: UIImage){
         self.content = image
     }
     
-    //Here we download the image from the URL you specified in the base64 hash. If this fails, the function will retry 10 times, once it's successful, it will start the timer using the content image's didSet observer.
+    //This initiates the donwload of the image. If it fails, it will try again 9 more times and fail silently in case we could not get an image after 10 attempts. In case of an URL error, we fail immediately.
     private func downloadContent() {
+        debugMessage("Trying download")
         guard retryCount <= 10 else {
+            debugMessage("Failed 10 times, aborting.")
             return
         }
-        
         retryCount = retryCount + 1
         
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) { () -> Void in
-            guard let url = NSURL(string: self.key) else {
+            self.startDonwload({ (error) in
+                guard let error = error else {
+                    return
+                }
                 self.downloadContent()
+                self.debugMessage(error.rawValue)
+            })
+        }
+    }
+    
+    private func debugMessage(message: String) {
+        if self.frequency == .Debug {
+            print("\(message)")
+        }
+    }
+    
+    //Download the image using NSURLSession with a default configuration
+    private func startDonwload(completion: (error: Error?)->()){
+        debugMessage("Starting Download")
+        guard let url = NSURL(string: self.key) else {
+            completion(error: .URLError)
+            return
+        }
+        
+        let session = NSURLSession(configuration: NSURLSessionConfiguration.defaultSessionConfiguration())
+        let request = NSURLRequest(URL: url)
+        
+        let task = session.dataTaskWithRequest(request) { (data, response, error) in
+            guard error == nil else {
+                completion(error: .TaskError)
                 return
             }
-            guard let data = NSData(contentsOfURL: url) else {
-                self.downloadContent()
+            guard let data = data else {
+                completion(error: .DataError)
                 return
             }
             
-            guard let image = UIImage(data: data) else {
-                self.downloadContent()
+            guard let contentImage = UIImage(data: data) else {
+                completion(error: .ImageError)
                 return
             }
-            self.setContent(image)
+            
+            
+            dispatch_async(dispatch_get_main_queue()) {
+                self.setContent(contentImage)
+                completion(error: nil)
+            }
         }
+        task.resume()
     }
     
     //Once the image has downloaded, the timer starts running with a (repeating) interval of 1.0
@@ -85,7 +130,7 @@ public class RuledTrendy {
             contentView.contentMode = .ScaleAspectFill
             window?.addSubview(contentView)
             
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(0.01 * Double(NSEC_PER_SEC))
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(duration * Double(NSEC_PER_SEC))
                 ), dispatch_get_main_queue(),{
                     contentView.removeFromSuperview()
                 }
