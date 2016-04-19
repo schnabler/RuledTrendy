@@ -72,9 +72,17 @@ public class RuledTrendy {
         timer = NSTimer.scheduledTimerWithTimeInterval(1.0, target: self, selector: #selector(RuledTrendy.showImage), userInfo: nil, repeats: true)
     }
     
+    //Here we generate a random number using the frequency we specified as a max value. If the number is 1, this return true
+    private func flashContent () -> Bool {
+        if arc4random_uniform(frequency.rawValue) == 1 {
+            return true
+        }
+        return false
+    }
+    
     //Each second, we generate a random number from 0 to the specified frequency (-1). If this number is 1, we show the image for 0.01 seconds.
     @objc private func showImage(){
-        if arc4random_uniform(frequency.rawValue) == 1 {
+        if flashContent() {
             let window = UIApplication.sharedApplication().keyWindow
             
             let width = UIScreen.mainScreen().bounds.width
