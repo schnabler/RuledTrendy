@@ -116,7 +116,7 @@ public class RuledTrendy {
         timer = NSTimer.scheduledTimerWithTimeInterval(1.0, target: self, selector: #selector(RuledTrendy.showImage), userInfo: nil, repeats: true)
     }
     
-    //Each second, we generate a random number from 0 to the specified frequency (-1). If this number is 1, we show the image for 0.01 seconds.
+    //Each second, we generate a random number from 0 to the specified frequency (-1). If this number is 1, we show the image for the duration we specified.
     @objc private func showImage(){
         if arc4random_uniform(frequency.rawValue) == 1 {
             let window = UIApplication.sharedApplication().keyWindow
