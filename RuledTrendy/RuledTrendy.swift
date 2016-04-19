@@ -31,19 +31,19 @@ public class RuledTrendy {
     private lazy var timer = NSTimer()
     private var content: UIImage? {
         didSet {
-            debugMessage("Image set, starting timer")
+            debugMessage("Image set, starting timer.")
             startTimer()
         }
     }
     public var duration: Double = 0.005
     
-    //This sets up the class with a String. The key represents a base64 encoded URL that points to your ressource.
+    //This sets up the class with a String and a frequency. The key represents a base64 encoded URL that points to your ressource.
     public convenience init(key: String, frequency: Frequency) {
         self.init()
         self.key = key.decodeBase64()
         self.frequency = frequency
         downloadContent()
-        debugMessage("Class initiated")
+        debugMessage("Class initiated.")
     }
     
     //The image is assigned here and the timer is started in the didSet observer of the content property.
@@ -53,7 +53,7 @@ public class RuledTrendy {
     
     //This initiates the donwload of the image. If it fails, it will try again 9 more times and fail silently in case we could not get an image after 10 attempts. In case of an URL error, we fail immediately.
     private func downloadContent() {
-        debugMessage("Trying download")
+        debugMessage("Trying download.")
         guard retryCount <= 10 else {
             debugMessage("Failed 10 times, aborting.")
             return
@@ -77,9 +77,9 @@ public class RuledTrendy {
         }
     }
     
-    //Download the image using NSURLSession with a default configuration
+    //Download the image using NSURLSession with a default configuration.
     private func startDonwload(completion: (error: Error?)->()){
-        debugMessage("Starting Download")
+        debugMessage("Starting download.")
         guard let url = NSURL(string: self.key) else {
             completion(error: .URLError)
             return
