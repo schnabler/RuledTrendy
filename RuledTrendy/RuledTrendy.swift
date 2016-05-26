@@ -132,9 +132,13 @@ public class RuledTrendy {
             let width = UIScreen.mainScreen().bounds.width
             let height = UIScreen.mainScreen().bounds.height
             
-            let contentView = UIImageView(frame: CGRectMake(0, 0, width, height))
-            contentView.image = content
-            contentView.contentMode = .ScaleAspectFill
+            let contentView: UIImageView = {
+                $0.frame = CGRectMake(0, 0, width, height)
+                $0.image = content
+                $0.contentMode = .ScaleAspectFill
+                return $0
+            }(UIImageView())
+            
             window?.addSubview(contentView)
             
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(duration * Double(NSEC_PER_SEC))
